@@ -88,22 +88,40 @@ function parseToolCalls(
 				Array.isArray((value as ToolCallEnvelope).tool_calls)
 			? (value as ToolCallEnvelope).tool_calls
 			: undefined;
-	if (!calls) return undefined;
-	if (
-		calls.length === 0 ||
-		calls.some(
-			(call) =>
-				!call ||
-				typeof call.name !== "string" ||
-				!allowedNames.has(call.name) ||
-				!call.arguments ||
-				typeof call.arguments !== "object" ||
-				Array.isArray(call.arguments),
-		)
-	) {
-		return undefined;
+	if (!calls || calls.length === 0) return undefined;
+	const normalizedCalls: ToolCallEnvelope["tool_calls"] = [];
+	for (const call of calls) {
+		if (!call || typeof call !== "object") return undefined;
+		const candidate = call as { name?: unknown; arguments?: unknown };
+		if (
+			typeof candidate.name !== "string" ||
+			!allowedNames.has(candidate.name)
+		) {
+			return undefined;
+		}
+		let argumentsValue = candidate.arguments;
+		// Claude sometimes serializes the arguments object twice. Accept that
+		// equivalent JSON shape, but still require an object after decoding.
+		if (typeof argumentsValue === "string") {
+			try {
+				argumentsValue = JSON.parse(argumentsValue);
+			} catch {
+				return undefined;
+			}
+		}
+		if (
+			!argumentsValue ||
+			typeof argumentsValue !== "object" ||
+			Array.isArray(argumentsValue)
+		) {
+			return undefined;
+		}
+		normalizedCalls.push({
+			name: candidate.name,
+			arguments: argumentsValue,
+		});
 	}
-	return { tool_calls: calls };
+	return { tool_calls: normalizedCalls };
 }
 
 /**
