@@ -47,9 +47,17 @@ function textOf(content: ChatHistoryItem["content"]): string {
 function textToolHistory(messages: ChatHistoryItem[]): ChatHistoryItem[] {
 	return messages.map((message) => {
 		if (message.role === "assistant" && message.tool_calls?.length) {
+			const calls = message.tool_calls.map((call) => {
+				try {
+					return { ...call, arguments: JSON.parse(call.arguments) as unknown };
+				} catch {
+					// Preserve malformed legacy arguments as text rather than dropping history.
+					return call;
+				}
+			});
 			return {
 				role: "assistant",
-				content: `${textOf(message.content)}\n<pi_tool_calls>${JSON.stringify(message.tool_calls)}</pi_tool_calls>`,
+				content: `${textOf(message.content)}\n<pi_tool_calls>${JSON.stringify(calls)}</pi_tool_calls>`,
 			};
 		}
 		if (message.role === "tool") {
