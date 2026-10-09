@@ -27,7 +27,15 @@ import {
  * known-good "2.0.0" until/unless someone explicitly overrides via
  * `MetadataInput.windsurfVersion`.
  */
-const WINDSURF_VERSION_STRING = '2.0.0';
+/**
+ * Client version reported to Cognition's API. Cognition gates newer model
+ * families (e.g. the swe-2 family, since ~Oct 2026) by client version —
+ * requests advertising an old version get the opaque
+ * "There is an issue with this request, please try a different model" error
+ * while older models keep working. Override with PI_WINDSURF_VERSION if the
+ * gate moves again.
+ */
+const WINDSURF_VERSION_STRING = process.env.PI_WINDSURF_VERSION ?? '2.4.2';
 
 export interface MetadataInput {
   /** Persistent api_key from OAuth (`devin-session-token$<JWT>`). */

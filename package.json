@@ -1,64 +1,64 @@
 {
-  "name": "pi-devin-auth",
-  "version": "0.1.3",
-  "description": "Pi coding agent extension for Devin/Cognition (Windsurf) OAuth + streaming",
-  "type": "module",
-  "keywords": [
-    "pi-package",
-    "devin",
-    "cognition",
-    "windsurf",
-    "oauth",
-    "pi-extension",
-    "custom-provider"
-  ],
-  "author": "nmzpy",
-  "contributors": [
-    {
-      "name": "tuan882612",
-      "url": "https://github.com/tuan882612"
+    "name": "pi-devin-auth",
+    "version": "0.1.4",
+    "description": "Pi coding agent extension for Devin/Cognition (Windsurf) OAuth + streaming",
+    "type": "module",
+    "keywords": [
+        "pi-package",
+        "devin",
+        "cognition",
+        "windsurf",
+        "oauth",
+        "pi-extension",
+        "custom-provider"
+    ],
+    "author": "nmzpy",
+    "contributors": [
+        {
+            "name": "tuan882612",
+            "url": "https://github.com/tuan882612"
+        }
+    ],
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/tuan882612/pi-devin-auth.git"
+    },
+    "homepage": "https://github.com/tuan882612/pi-devin-auth#readme",
+    "bugs": {
+        "url": "https://github.com/tuan882612/pi-devin-auth/issues"
+    },
+    "pi": {
+        "extensions": [
+            "./extensions/index.ts"
+        ]
+    },
+    "files": [
+        "extensions/",
+        "src/",
+        "README.md",
+        "AGENTS.md",
+        "LICENSE"
+    ],
+    "scripts": {
+        "typecheck": "tsc --noEmit",
+        "test": "node --test --import tsx tests/stream.test.ts"
+    },
+    "peerDependencies": {
+        "@earendil-works/pi-ai": "*",
+        "@earendil-works/pi-coding-agent": "*",
+        "@earendil-works/pi-agent-core": "*",
+        "@earendil-works/pi-tui": "*",
+        "typebox": "*"
+    },
+    "devDependencies": {
+        "@earendil-works/pi-ai": "*",
+        "@earendil-works/pi-coding-agent": "*",
+        "@types/node": "^25.0.0",
+        "tsx": "^4.19.0",
+        "typescript": "^5.7.0"
+    },
+    "engines": {
+        "node": ">=18.0.0"
     }
-  ],
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/tuan882612/pi-devin-auth.git"
-  },
-  "homepage": "https://github.com/tuan882612/pi-devin-auth#readme",
-  "bugs": {
-    "url": "https://github.com/tuan882612/pi-devin-auth/issues"
-  },
-  "pi": {
-    "extensions": [
-      "./extensions/index.ts"
-    ]
-  },
-  "files": [
-    "extensions/",
-    "src/",
-    "README.md",
-    "AGENTS.md",
-    "LICENSE"
-  ],
-  "scripts": {
-    "typecheck": "tsc --noEmit",
-    "test": "node --test --import tsx tests/stream.test.ts"
-  },
-  "peerDependencies": {
-    "@earendil-works/pi-ai": "*",
-    "@earendil-works/pi-coding-agent": "*",
-    "@earendil-works/pi-agent-core": "*",
-    "@earendil-works/pi-tui": "*",
-    "typebox": "*"
-  },
-  "devDependencies": {
-    "@earendil-works/pi-ai": "*",
-    "@earendil-works/pi-coding-agent": "*",
-    "@types/node": "^25.0.0",
-    "tsx": "^4.19.0",
-    "typescript": "^5.7.0"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  }
 }
