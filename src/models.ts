@@ -28,6 +28,7 @@ const DEFAULT_HOST = 'https://server.codeium.com';
  */
 export const WANTED_PREFIXES: readonly string[] = [
     'swe-1-7',
+    'swe-2',
     'gpt-5-6-sol',
     'gpt-5-6-luna',
     'gpt-5-6-terra',
@@ -82,6 +83,34 @@ const MODEL_META: Map<string, ModelMeta> = new Map([
         reasoning: true,
         input: ['text', 'image'],
         cost: { input: 2.50, output: 12.50, cacheRead: 0.25, cacheWrite: 3.13 },
+    }],
+    ['swe-2', {
+        contextWindow: 256_000,
+        maxTokens: 128_000,
+        reasoning: true,
+        input: ['text', 'image'],
+        cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+    }],
+    ['swe-2-medium', {
+        contextWindow: 256_000,
+        maxTokens: 128_000,
+        reasoning: true,
+        input: ['text', 'image'],
+        cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+    }],
+    ['swe-2-high', {
+        contextWindow: 256_000,
+        maxTokens: 128_000,
+        reasoning: true,
+        input: ['text', 'image'],
+        cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+    }],
+    ['swe-2-max', {
+        contextWindow: 256_000,
+        maxTokens: 128_000,
+        reasoning: true,
+        input: ['text', 'image'],
+        cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
     }],
     ['gpt-5-6-sol', {
         contextWindow: 1_050_000,
@@ -194,6 +223,10 @@ function makeModel(id: string, name: string, meta: ModelMeta): ProviderModelConf
 export const FALLBACK_MODELS: ProviderModelConfig[] = [
     makeModel('swe-1-7', 'SWE-1.7', MODEL_META.get('swe-1-7')!),
     makeModel('swe-1-7-lightning', 'SWE-1.7 Lightning', MODEL_META.get('swe-1-7-lightning')!),
+    makeModel('swe-2', 'SWE-2', MODEL_META.get('swe-2')!),
+    makeModel('swe-2-medium', 'SWE-2 Medium', MODEL_META.get('swe-2-medium')!),
+    makeModel('swe-2-high', 'SWE-2 High', MODEL_META.get('swe-2-high')!),
+    makeModel('swe-2-max', 'SWE-2 Max', MODEL_META.get('swe-2-max')!),
     makeModel('gpt-5-6-sol', 'GPT-5.6 Sol', MODEL_META.get('gpt-5-6-sol')!),
     makeModel('gpt-5-6-luna', 'GPT-5.6 Luna', MODEL_META.get('gpt-5-6-luna')!),
     makeModel('gpt-5-6-terra', 'GPT-5.6 Terra', MODEL_META.get('gpt-5-6-terra')!),
