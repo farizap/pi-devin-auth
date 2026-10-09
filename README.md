@@ -114,3 +114,21 @@ protocol. See commit history for changes.
 ## License
 
 MIT
+
+## pi 1.1.0 compatibility + swe-2 client-version gate (0.1.4)
+
+Two fixes for current pi:
+
+1. **`TranscriptContext` support** — pi >= 1.1.0 passes `streamSimple` a
+   normalized transcript: the system prompt is a leading `role: "system"`
+   message and tool declarations ride on system messages as
+   `toolsAdded`/`toolsRemoved`. `mapContextToChat` now maps system messages
+   correctly (previously they fell into the tool-result branch, producing a
+   45 KB `role: "tool"` message that Cognition rejects with
+   `invalid_argument` on swe-2 models) and collects tools from the
+   transcript.
+2. **Client-version gate** — Cognition gates the swe-2 model family by the
+   advertised Windsurf client version. The hardcoded `2.0.0` now gets the
+   opaque "There is an issue with this request, please try a different
+   model" rejection. The default is now `2.4.2`; override with
+   `PI_WINDSURF_VERSION` if the gate moves.

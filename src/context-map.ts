@@ -3,6 +3,12 @@
  * (`Message[]`, `Tool[]`, `systemPrompt`) into the `ChatHistoryItem[]` +
  * `ToolDef[]` shapes that the cloud-direct gRPC layer expects.
  *
+ * Supports both context shapes:
+ *  - pre-normalize `Context` (`systemPrompt` + `tools` shorthand), and
+ *  - pi >= 1.1.0 `TranscriptContext`, where `normalizeContext()` folds the
+ *    prompt into a leading `role: "system"` message and tool declarations
+ *    ride on system messages as `toolsAdded` / `toolsRemoved`.
+ *
  * No side effects, no I/O — trivially unit-testable.
  */
 import type { Context, Message, Tool } from '@earendil-works/pi-ai';
@@ -153,10 +159,38 @@ export function mapContextToChat(context: Context): MappedChat {
         messages.push({ role: 'system', content: context.systemPrompt });
     }
 
+    // pi >= 1.1.0 TranscriptContext: tool declarations ride on system
+    // messages as `toolsAdded` / `toolsRemoved` (see pi-ai's
+    // `getCurrentTools`). Replay them in transcript order.
+    const toolsById = new Map<string, ToolDef>();
+    const collectTools = (msg: Message): void => {
+        const sys = msg as Message & { toolsAdded?: Tool[]; toolsRemoved?: { name: string }[] };
+        for (const name of sys.toolsRemoved ?? []) {
+            // `toolsRemoved` entries are tool names, not Tool objects.
+            toolsById.delete(typeof name === 'string' ? name : (name as unknown as Tool).name);
+        }
+        for (const tool of sys.toolsAdded ?? []) {
+            toolsById.set(tool.name, {
+                name: tool.name,
+                description: tool.description,
+                parameters: tool.parameters as unknown,
+            });
+        }
+    };
+
     for (const msg of context.messages) {
+        if (msg.role === 'system') {
+            collectTools(msg);
+            messages.push({
+                role: 'system',
+                content: mapContent(msg.content as string | UserContentPart[]),
+            });
+            continue;
+        }
         messages.push(mapMessage(msg));
     }
 
+    // Legacy shorthand still wins if both forms are somehow present.
     const tools: ToolDef[] = (context.tools ?? []).map(
         (tool: Tool): ToolDef => ({
             name: tool.name,
@@ -165,6 +199,7 @@ export function mapContextToChat(context: Context): MappedChat {
             parameters: tool.parameters as unknown,
         }),
     );
+    if (tools.length === 0) tools.push(...toolsById.values());
 
     return { messages, tools };
 }
