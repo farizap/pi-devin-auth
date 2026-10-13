@@ -1174,9 +1174,24 @@ export async function* streamChatEvents(
 					"abort",
 					() => {
 						try {
-							void resp.body?.cancel(
-								idleController.signal.reason ?? new Error("idle abort"),
-							);
+							// `resp.body` stays locked while `reader` holds it —
+							// spec-compliant runtimes throw ERR_INVALID_STATE
+							// synchronously from `ReadableStream.cancel()` in that
+							// case. Route the cancel through the active reader
+							// instead (same underlying source; resolves any pending
+							// read()). Stream-level cancel is only a fallback when
+							// nothing holds the lock. The try/catch stays as
+							// defense-in-depth for runtimes whose fetch body throws
+							// regardless of the locked flag.
+							const reason =
+								idleController.signal.reason ?? new Error("idle abort");
+							if (resp.body?.locked) {
+								void reader.cancel(reason).catch(() => {
+									/* post-race rejection; already rejected */
+								});
+							} else {
+								void resp.body?.cancel(reason);
+							}
 						} catch (error) {
 							debugLog("response_cancel_error", {
 								debugRequestId,
@@ -1315,7 +1330,15 @@ export async function* streamChatEvents(
 			});
 		}
 		try {
-			void resp.body?.cancel();
+			// releaseLock() above normally drops the lock so the stream-level
+			// cancel is legal, but if releaseLock itself failed the body stays
+			// locked and cancel() throws ERR_INVALID_STATE — route through the
+			// reader in that case.
+			if (resp.body?.locked) {
+				void reader.cancel().catch(() => {});
+			} else {
+				void resp.body?.cancel();
+			}
 		} catch (error) {
 			debugLog("response_cleanup_error", {
 				debugRequestId,
